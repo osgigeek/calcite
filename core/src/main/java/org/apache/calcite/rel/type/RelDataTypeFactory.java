@@ -111,6 +111,17 @@ public interface RelDataTypeFactory {
       List<? extends Map.Entry<String, RelDataType>> fieldList);
 
   /**
+   * Creates a type that represents a variant type with a collection of fieldList,
+   * obtaining the field information from a list of (name, type) pairs.
+   *
+   * @param elementType type of the elements of the variant
+   * @param isNullable true to request a nullable type; false to request a NOT
+   *    *                 NULL type
+   * @return canonical variant type descriptor
+   */
+  RelDataType createVariantType(RelDataType elementType, boolean isNullable);
+
+  /**
    * Creates an array type. Arrays are ordered collections of elements.
    *
    * @param elementType    type of the elements of the array

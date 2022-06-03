@@ -400,7 +400,7 @@ public abstract class SqlUtil {
 
     if (!unparsedAsFunc) {
       for (int i = 0; i < identifier.names.size(); i++) {
-        writer.sep(".");
+        writer.sep(identifier.separator);
         final String name = identifier.names.get(i);
         final SqlParserPos pos = identifier.getComponentParserPosition(i);
         if (name.equals("")) {

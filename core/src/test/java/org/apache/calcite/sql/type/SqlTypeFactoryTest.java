@@ -25,6 +25,8 @@ import org.apache.calcite.rel.type.RelRecordType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
+import org.apache.calcite.util.Pair;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -34,10 +36,7 @@ import java.util.Map;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.Is.isA;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test for {@link SqlTypeFactoryImpl}.
@@ -226,6 +225,28 @@ class SqlTypeFactoryTest {
     final RelDataType copyRecordType = typeFactory.createTypeWithNullability(recordType, true);
     assertFalse(recordType.isNullable());
     assertTrue(copyRecordType.isNullable());
+  }
+
+  @Test void createVariantType(){
+    SqlTypeFixture f = new SqlTypeFixture();
+    RelDataTypeFactory typeFactory = f.typeFactory;
+    List<RelDataTypeField> fields = new ArrayList<>();
+    RelDataTypeField field0 = new RelDataTypeFieldImpl(
+        "street1", 0, typeFactory.createSqlType(SqlTypeName.INTEGER));
+    RelDataTypeField field1 = new RelDataTypeFieldImpl(
+        "street2", 1, typeFactory.createSqlType(SqlTypeName.VARCHAR));
+    RelDataTypeField field2 = new RelDataTypeFieldImpl(
+        "city", 2, typeFactory.createSqlType(SqlTypeName.VARCHAR));
+    RelDataTypeField field3 = new RelDataTypeFieldImpl(
+        "state", 3, typeFactory.createSqlType(SqlTypeName.VARCHAR));
+    fields.add(field0);
+    fields.add(field1);
+    fields.add(field2);
+    fields.add(field3);
+    final RelDataType recordType = new RelRecordType(fields);
+    RelDataType variantType = typeFactory.createVariantType(recordType, false);
+    assertFalse(variantType.isNullable());
+    assertEquals(SqlTypeName.VARIANT, variantType.getSqlTypeName());
   }
 
   /** Test case for

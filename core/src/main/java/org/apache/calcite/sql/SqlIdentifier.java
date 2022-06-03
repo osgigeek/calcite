@@ -70,6 +70,8 @@ public class SqlIdentifier extends SqlNode {
    */
   protected @Nullable ImmutableList<SqlParserPos> componentPositions;
 
+  protected String separator= ".";
+
   //~ Constructors -----------------------------------------------------------
 
   /**
@@ -140,7 +142,15 @@ public class SqlIdentifier extends SqlNode {
   }
 
   @Override public String toString() {
-    return getString(names);
+    return Util.sepList(toStar(names), getSeparator());
+  }
+
+  public void setSeparator(String separator){
+    this.separator = separator;
+  }
+
+  private String getSeparator(){
+    return separator;
   }
 
   /** Converts a list of strings to a qualified identifier. */
@@ -190,7 +200,9 @@ public class SqlIdentifier extends SqlNode {
       pos2 = new ArrayList<>(componentPositions);
       pos2.add(i, pos);
     }
-    return new SqlIdentifier(names2, collation, pos, pos2);
+    SqlIdentifier newIdentifier = new SqlIdentifier(names2, collation, pos, pos2);
+    newIdentifier.setSeparator(this.getSeparator());
+    return newIdentifier;
   }
 
   /**

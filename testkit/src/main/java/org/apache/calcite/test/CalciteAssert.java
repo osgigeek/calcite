@@ -37,10 +37,7 @@ import org.apache.calcite.plan.Contexts;
 import org.apache.calcite.plan.RelOptUtil;
 import org.apache.calcite.rel.RelNode;
 import org.apache.calcite.rel.RelRoot;
-import org.apache.calcite.rel.type.RelDataType;
-import org.apache.calcite.rel.type.RelDataTypeFactory;
-import org.apache.calcite.rel.type.RelDataTypeImpl;
-import org.apache.calcite.rel.type.RelProtoDataType;
+import org.apache.calcite.rel.type.*;
 import org.apache.calcite.runtime.CalciteException;
 import org.apache.calcite.runtime.GeoFunctions;
 import org.apache.calcite.runtime.Hook;
@@ -799,6 +796,8 @@ public class CalciteAssert {
 
     case MY_DB:
       return rootSchema.add(schema.schemaName, MY_DB_SCHEMA);
+
+    case MY_VARIANT_SCHEMA: return rootSchema.add(schema.schemaName, MY_VARIANT_SCHEMA);
 
     case SCOTT:
       jdbcScott = addSchemaIfNotExists(rootSchema, SchemaSpec.JDBC_SCOTT);
@@ -1941,6 +1940,7 @@ public class CalciteAssert {
     GEO("GEO"),
     HR("hr"),
     MY_DB("myDb"),
+    MY_VARIANT_SCHEMA("myVariantSchema"),
     JDBC_SCOTT("JDBC_SCOTT"),
     SCOTT("scott"),
     SCOTT_WITH_TEMPORAL("scott_temporal"),
@@ -2111,6 +2111,111 @@ public class CalciteAssert {
       }
     }
   }
+
+  private static final Schema MY_VARIANT_SCHEMA = new Schema() {
+
+    @Override
+    public @Nullable Table getTable(String name) {
+      return variantTable;
+    }
+
+    @Override
+    public Set<String> getTableNames() {
+      return ImmutableSet.of("variant_table");
+    }
+
+    @Override
+    public @Nullable RelProtoDataType getType(String name) {
+      return null;
+    }
+
+    @Override
+    public Set<String> getTypeNames() {
+      return ImmutableSet.of();
+    }
+
+    @Override
+    public Collection<org.apache.calcite.schema.Function> getFunctions(String name) {
+      return null;
+    }
+
+    @Override
+    public Set<String> getFunctionNames() {
+      return ImmutableSet.of();
+    }
+
+    @Override
+    public @Nullable Schema getSubSchema(String name) {
+      return null;
+    }
+
+    @Override
+    public Set<String> getSubSchemaNames() {
+      return ImmutableSet.of();
+    }
+
+    @Override
+    public Expression getExpression(@Nullable SchemaPlus parentSchema, String name) {
+      return null;
+    }
+
+    @Override
+    public boolean isMutable() {
+      return false;
+    }
+
+    @Override
+    public Schema snapshot(SchemaVersion version) {
+      return null;
+    }
+
+    final Table variantTable = new Table() {
+      @Override
+      public RelDataType getRowType(RelDataTypeFactory typeFactory) {
+        List<RelDataTypeField> fields = new ArrayList<>();
+        RelDataTypeField field0 = new RelDataTypeFieldImpl(
+            "street1", 0, typeFactory.createSqlType(SqlTypeName.INTEGER));
+        RelDataTypeField field1 = new RelDataTypeFieldImpl(
+            "street2", 1, typeFactory.createSqlType(SqlTypeName.VARCHAR));
+        RelDataTypeField field2 = new RelDataTypeFieldImpl(
+            "city", 2, typeFactory.createSqlType(SqlTypeName.VARCHAR));
+        RelDataTypeField field3 = new RelDataTypeFieldImpl(
+            "state", 3, typeFactory.createSqlType(SqlTypeName.VARCHAR));
+        fields.add(field0);
+        fields.add(field1);
+        fields.add(field2);
+        fields.add(field3);
+        final RelDataType recordType = new RelRecordType(fields);
+        RelDataType variant = typeFactory.createVariantType(recordType, false);
+        return typeFactory.builder().add("address", variant).build();
+      }
+
+      @Override
+      public Statistic getStatistic() {
+        return new Statistic() {
+          @Override public Double getRowCount() {
+            return 0D;
+          }
+        };
+      }
+
+      @Override
+      public TableType getJdbcTableType() {
+        return null;
+      }
+
+      @Override
+      public boolean isRolledUp(String column) {
+        return false;
+      }
+
+      @Override
+      public boolean rolledUpColumnValidInsideAgg(String column, SqlCall call,
+          @Nullable SqlNode parent, @Nullable CalciteConnectionConfig config) {
+        return false;
+      }
+    };
+  };
 
   /** Schema instance for {@link SchemaSpec#MY_DB}. */
   private static final Schema MY_DB_SCHEMA = new Schema() {
