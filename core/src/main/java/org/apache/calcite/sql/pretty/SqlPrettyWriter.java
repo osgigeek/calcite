@@ -954,6 +954,7 @@ public class SqlPrettyWriter implements SqlWriter {
   private static boolean needWhitespaceBefore(String s) {
     return !(s.equals(",")
         || s.equals(".")
+        || s.equals(":")
         || s.equals(")")
         || s.equals("[")
         || s.equals("]")
@@ -963,7 +964,8 @@ public class SqlPrettyWriter implements SqlWriter {
   private static boolean needWhitespaceAfter(String s) {
     return !(s.equals("(")
         || s.equals("[")
-        || s.equals("."));
+        || s.equals(".")
+        || s.equals(":"));
   }
 
   protected void whiteSpace() {
@@ -1083,7 +1085,7 @@ public class SqlPrettyWriter implements SqlWriter {
   }
 
   @Override public void sep(String sep) {
-    sep(sep, !(sep.equals(",") || sep.equals(".")));
+    sep(sep, !(sep.equals(",") || sep.equals(".") || sep.equals(":")));
   }
 
   @Override public void sep(String sep, boolean printFirst) {

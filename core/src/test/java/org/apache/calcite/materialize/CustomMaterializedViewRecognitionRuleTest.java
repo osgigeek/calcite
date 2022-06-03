@@ -80,7 +80,7 @@ public class CustomMaterializedViewRecognitionRuleTest extends SqlToRelTestBase 
     return Frameworks.newConfigBuilder()
         .parserConfig(SqlParser.Config.DEFAULT)
         .defaultSchema(
-            CalciteAssert.addSchema(rootSchema, CalciteAssert.SchemaSpec.SCOTT_WITH_TEMPORAL))
+            CalciteAssert.addSchema(rootSchema, CalciteAssert.SchemaSpec.SCOTT_WITH_TEMPORAL, CalciteAssert.SchemaSpec.MY_VARIANT_SCHEMA))
         .traitDefs((List<RelTraitDef>) null);
   }
 

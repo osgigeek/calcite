@@ -115,6 +115,7 @@ public enum SqlTypeName {
   MAP(PrecScale.NO_NO, false, Types.OTHER, SqlTypeFamily.MAP),
   DISTINCT(PrecScale.NO_NO, false, Types.DISTINCT, null),
   STRUCTURED(PrecScale.NO_NO, false, Types.STRUCT, null),
+  VARIANT(PrecScale.NO_NO, false, Types.STRUCT, null),
   ROW(PrecScale.NO_NO, false, Types.STRUCT, null),
   OTHER(PrecScale.NO_NO, false, Types.OTHER, null),
   CURSOR(PrecScale.NO_NO, false, ExtraSqlTypes.REF_CURSOR,
@@ -158,7 +159,7 @@ public enum SqlTypeName {
           INTERVAL_DAY_SECOND, INTERVAL_HOUR, INTERVAL_HOUR_MINUTE,
           INTERVAL_HOUR_SECOND, INTERVAL_MINUTE, INTERVAL_MINUTE_SECOND,
           INTERVAL_SECOND, TIME_WITH_LOCAL_TIME_ZONE, TIMESTAMP_WITH_LOCAL_TIME_ZONE,
-          FLOAT, MULTISET, DISTINCT, STRUCTURED, ROW, CURSOR, COLUMN_LIST);
+          FLOAT, MULTISET, DISTINCT, STRUCTURED, ROW, CURSOR, COLUMN_LIST, VARIANT);
 
   public static final List<SqlTypeName> BOOLEAN_TYPES =
       ImmutableList.of(BOOLEAN);

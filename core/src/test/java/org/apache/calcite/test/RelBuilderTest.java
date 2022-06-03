@@ -40,6 +40,7 @@ import org.apache.calcite.rel.core.TableModify;
 import org.apache.calcite.rel.core.Window;
 import org.apache.calcite.rel.hint.RelHint;
 import org.apache.calcite.rel.metadata.RelMetadataQuery;
+import org.apache.calcite.rel.rel2sql.RelToSqlConverter;
 import org.apache.calcite.rel.type.RelDataType;
 import org.apache.calcite.rel.type.RelDataTypeFactory;
 import org.apache.calcite.rel.type.RelDataTypeField;
@@ -55,10 +56,8 @@ import org.apache.calcite.schema.TableFunction;
 import org.apache.calcite.schema.impl.TableFunctionImpl;
 import org.apache.calcite.schema.impl.ViewTable;
 import org.apache.calcite.schema.impl.ViewTableMacro;
-import org.apache.calcite.sql.SqlIdentifier;
-import org.apache.calcite.sql.SqlKind;
-import org.apache.calcite.sql.SqlMatchRecognize;
-import org.apache.calcite.sql.SqlOperator;
+import org.apache.calcite.sql.*;
+import org.apache.calcite.sql.dialect.AnsiSqlDialect;
 import org.apache.calcite.sql.fun.SqlLibraryOperators;
 import org.apache.calcite.sql.fun.SqlStdOperatorTable;
 import org.apache.calcite.sql.parser.SqlParser;
@@ -167,7 +166,7 @@ public class RelBuilderTest {
     return Frameworks.newConfigBuilder()
         .parserConfig(SqlParser.Config.DEFAULT)
         .defaultSchema(
-            CalciteAssert.addSchema(rootSchema, CalciteAssert.SchemaSpec.SCOTT_WITH_TEMPORAL))
+            CalciteAssert.addSchema(rootSchema, CalciteAssert.SchemaSpec.SCOTT_WITH_TEMPORAL, CalciteAssert.SchemaSpec.MY_VARIANT_SCHEMA))
         .traitDefs((List<RelTraitDef>) null)
         .programs(Programs.heuristicJoinOrder(Programs.RULE_SET, true, 2));
   }
@@ -305,6 +304,17 @@ public class RelBuilderTest {
             .build();
     assertThat(root,
         hasTree("LogicalTableScan(table=[[scott, EMP]])\n"));
+  }
+
+  @Test void testVariant(){
+    final RelBuilder builder = RelBuilder.create(config().build());
+    RexNode node = builder.scan("variant_table").dot(builder.field("address"), "state");
+    RexNode call = builder.call(SqlStdOperatorTable.EQUALS, node, builder.literal("CA"));
+    builder.filter(call);
+    RelToSqlConverter converter = new RelToSqlConverter(new AnsiSqlDialect(AnsiSqlDialect.DEFAULT_CONTEXT.withIdentifierQuoteString("")));
+    RelNode relNode = builder.build();
+    SqlSelect select = converter.visitRoot(relNode).asSelect();
+    System.out.println(select.toSqlString(new AnsiSqlDialect(AnsiSqlDialect.DEFAULT_CONTEXT.withIdentifierQuoteString(""))).getSql());
   }
 
   @Test void testScanFilterTriviallyFalse() {

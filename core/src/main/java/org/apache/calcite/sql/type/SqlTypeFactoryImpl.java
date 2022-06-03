@@ -16,11 +16,7 @@
  */
 package org.apache.calcite.sql.type;
 
-import org.apache.calcite.rel.type.RelDataType;
-import org.apache.calcite.rel.type.RelDataTypeFactory;
-import org.apache.calcite.rel.type.RelDataTypeFactoryImpl;
-import org.apache.calcite.rel.type.RelDataTypeFamily;
-import org.apache.calcite.rel.type.RelDataTypeSystem;
+import org.apache.calcite.rel.type.*;
 import org.apache.calcite.sql.SqlCollation;
 import org.apache.calcite.sql.SqlIntervalQualifier;
 import org.apache.calcite.util.Util;
@@ -28,7 +24,9 @@ import org.apache.calcite.util.Util;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.nio.charset.Charset;
+import java.util.AbstractList;
 import java.util.List;
+import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
@@ -102,6 +100,17 @@ public class SqlTypeFactoryImpl extends RelDataTypeFactoryImpl {
     assert maxCardinality == -1;
     RelDataType newType = new MultisetSqlType(type, false);
     return canonize(newType);
+  }
+
+  @Override public RelDataType createVariantType(RelDataType type, boolean isNullable){
+    VariantSqlType newType = new VariantSqlType(
+        type.getSqlTypeName(),
+        type.getSqlIdentifier(),
+        isNullable,
+        type.getFieldList(),
+        type.getComparability()
+    );
+    return newType;
   }
 
   @Override public RelDataType createArrayType(
@@ -212,7 +221,9 @@ public class SqlTypeFactoryImpl extends RelDataTypeFactoryImpl {
       newType = copyIntervalType(type, nullable);
     } else if (type instanceof ObjectSqlType) {
       newType = copyObjectType(type, nullable);
-    } else {
+    } else if (type instanceof VariantSqlType) {
+      newType = copyVariantType(type, nullable);
+    }else {
       return super.createTypeWithNullability(type, nullable);
     }
     return canonize(newType);
@@ -535,6 +546,17 @@ public class SqlTypeFactoryImpl extends RelDataTypeFactoryImpl {
         nullable,
         type.getFieldList(),
         type.getComparability());
+  }
+
+  private final RelDataType copyVariantType(
+      RelDataType type, boolean nullable) {
+    return new VariantSqlType(
+        type.getSqlTypeName(),
+        type.getSqlIdentifier(),
+        nullable,
+        type.getFieldList(),
+        type.getComparability()
+    );
   }
 
   private RelDataType copyArrayType(RelDataType type, boolean nullable) {

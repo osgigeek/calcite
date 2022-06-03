@@ -22,6 +22,9 @@ import org.apache.calcite.sql.SqlKind;
 
 import com.google.common.base.Preconditions;
 
+import org.apache.calcite.sql.type.SqlTypeName;
+import org.apache.calcite.sql.type.VariantSqlType;
+
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -64,7 +67,11 @@ public class RexFieldAccess extends RexNode {
     checkValid(expr, field);
     this.expr = expr;
     this.field = field;
-    this.digest = expr + "." + field.getName();
+    if(expr.getType().getSqlTypeName().equals(SqlTypeName.VARIANT)) {
+      this.digest = expr + ":" + field.getName();
+    }else{
+      this.digest = expr + "." + field.getName();
+    }
   }
 
   //~ Methods ----------------------------------------------------------------

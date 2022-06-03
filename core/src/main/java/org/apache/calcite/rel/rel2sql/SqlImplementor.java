@@ -1529,10 +1529,14 @@ public abstract class SqlImplementor {
         final List<RelDataTypeField> fields = alias.getValue().getFieldList();
         if (ordinal < fields.size()) {
           RelDataTypeField field = fields.get(ordinal);
-          return new SqlIdentifier(!qualified
+          SqlIdentifier sqlIdentifier = new SqlIdentifier(!qualified
               ? ImmutableList.of(field.getName())
               : ImmutableList.of(alias.getKey(), field.getName()),
               POS);
+          if(field.getType().getSqlTypeName().equals(SqlTypeName.VARIANT)){
+            sqlIdentifier.setSeparator(":");
+          }
+          return sqlIdentifier;
         }
         ordinal -= fields.size();
       }
